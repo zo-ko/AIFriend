@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -10,6 +10,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
+    tailwindcss(),
   ],
    build: {
     outDir: path.resolve(__dirname, '../backend/static/frontend'), // 打包到 Django static
