@@ -18,7 +18,7 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
           </label>
           <div class="px-2 font-bold text-xl">AIFriend</div>
         </div>
-        <div class="navbar-center w-4/5 max-w-180">
+        <div class="navbar-center w-4/5 max-w-180 flex justify-center">
           <div class="join w-4/5">
             <input class="input join-item rounded-l-full w-4/5" placeholder="搜索"/>
             <button class="btn join-item rounded-r-full gap-0">
@@ -28,7 +28,7 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
           </div>
         </div>
         <div class="navbar-end">
-          <button class="btn btn-ghost text-lg">登录</button>
+          <router-link :to="{name:'user-account-login-pageindex'}" class="btn btn-ghost text-lg">登录</router-link>
         </div>
       </nav>
       <slot></slot>
@@ -40,22 +40,22 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
         <!-- Sidebar content here -->
         <ul class="menu w-full grow">
           <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="首页">
+            <router-link :to="{name:'home-pageindex'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="首页">
               <HomepageIcon/>
               <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">首页</span>
-            </button>
+            </router-link>
           </li>
            <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="好友">
+            <router-link :to="{name:'friend-pageindex'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="好友">
               <Friendicon/>
               <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">好友</span>
-            </button>
+            </router-link>
           </li>
            <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="创作">
+            <router-link :to="{name:'create-pageindex'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="创作">
               <CreateIcon/>
               <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">创作</span>
-            </button>
+            </router-link>
           </li>
 
         </ul>

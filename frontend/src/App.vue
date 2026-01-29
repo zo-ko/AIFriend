@@ -5,7 +5,8 @@ import NavBar from "@/components/navbar/NavBar.vue";
 
 <template>
   <NavBar>
-    YEMIAN
+    <router-view/>
+
   </NavBar>
 </template>
 
