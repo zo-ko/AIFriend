@@ -2,9 +2,12 @@
 
 import MenuIcon from "@/components/navbar/icons/MenuIcon.vue";
 import HomepageIcon from "@/components/navbar/icons/HomepageIcon.vue";
-import Friendicon from "@/components/navbar/icons/Friendicon.vue";
+import FriendIcon from "@/components/navbar/icons/FriendIcon.vue";
 import CreateIcon from "@/components/navbar/icons/CreateIcon.vue";
 import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
+import {useUserStore} from "@/stores/user.js";
+import UserMenu from "@/components/navbar/UserMenu.vue";
+const user=useUserStore()
 </script>
 
 <template>
@@ -28,7 +31,12 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
           </div>
         </div>
         <div class="navbar-end">
-          <router-link :to="{name:'user-account-login-pageindex'}" class="btn btn-ghost text-lg">登录</router-link>
+          <router-link v-if="user.isLogin()" :to="{name:'create-pageindex'}" active-class="btn-active" class="btn btn-ghost text-base mr-6">
+            <CreateIcon/>
+            创作
+          </router-link>
+          <router-link v-if="!user.isLogin()" :to="{name:'user-account-login-pageindex'}" class="btn btn-ghost text-lg">登录</router-link>
+          <UserMenu v-else class="dropdown-end"></UserMenu>
         </div>
       </nav>
       <slot></slot>
@@ -47,7 +55,7 @@ import SearchIcon from "@/components/navbar/icons/SearchIcon.vue";
           </li>
            <li>
             <router-link :to="{name:'friend-pageindex'}" active-class="menu-focus" class="is-drawer-close:tooltip is-drawer-close:tooltip-right py-3" data-tip="好友">
-              <Friendicon/>
+              <FriendIcon/>
               <span class="is-drawer-close:hidden text-base ml-2 whitespace-nowrap">好友</span>
             </router-link>
           </li>
