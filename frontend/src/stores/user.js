@@ -7,7 +7,7 @@ export const useUserStore = defineStore('user' , () =>{
     const photo =ref('http://127.0.0.1:8000/media/user/photos/default.jpg')
     const profile =ref('111')
     const accessToken =ref('111')
-
+    const hasPulledUserInfo = ref(false)
     function isLogin(){
         return !!accessToken.value
     }
@@ -31,6 +31,10 @@ export const useUserStore = defineStore('user' , () =>{
         accessToken.value = ''
     }
 
+    function setHasPulledUserInfo(newState) {
+        hasPulledUserInfo.value = newState
+    }
+
     return {
         id,
         username,
@@ -41,5 +45,7 @@ export const useUserStore = defineStore('user' , () =>{
         setAccessToken,
         setUserInfo,
         logout,
+        hasPulledUserInfo,
+        setHasPulledUserInfo,
     }
 })

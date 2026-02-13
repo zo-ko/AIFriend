@@ -7,6 +7,7 @@ import LoginIndex from "@/views/user/account/LoginIndex.vue";
 import RegisterIndex from "@/views/user/account/RegisterIndex.vue";
 import SpaceIndex from "@/views/user/space/SpaceIndex.vue";
 import ProfileIndex from "@/views/profile/ProfileIndex.vue";
+import {useUserStore} from "@/stores/user.js";
 
 
 const router = createRouter({
@@ -16,48 +17,85 @@ const router = createRouter({
       path: '/',
       component: HomepageIndex,
       name: 'home-pageindex',
+      meta: {
+        needLogin: false,
+      },
     },
     {
       path: '/friend/',
       component: FriendIndex,
       name: 'friend-pageindex',
+      meta: {
+        needLogin: true,
+      },
     },
     {
       path: '/create/',
       component: CreateIndex,
       name: 'create-pageindex',
+      meta: {
+        needLogin: true,
+      },
     },
     {
       path: '/404/',
       component: NotFoundIndex,
       name: '404',
+      meta: {
+        needLogin: false,
+      },
     },
     {
       path: '/user/account/login/',
       component: LoginIndex,
       name: 'user-account-login-pageindex',
+      meta: {
+        needLogin: false,
+      },
     },
     {
       path: '/user/account/register/',
       component: RegisterIndex,
       name: 'user-account-register-pageindex',
+      meta: {
+        needLogin: false,
+      },
     },
     {
       path: '/user/space/:user_id/',
       component: SpaceIndex,
       name: 'user-space-index',
+      meta: {
+        needLogin: true,
+      },
     },
     {
       path: '/user/profile/',
       component: ProfileIndex,
       name: 'user-profile-index',
+      meta: {
+        needLogin: true,
+      },
     },
     {
       path: '/:pathMatch(.*)*',
       component: NotFoundIndex,
       name: 'not-found',
+      meta: {
+        needLogin: false,
+      },
     },
   ],
+})
+
+router.beforeEach((to, from) => {
+  const user = useUserStore()
+  if(to.meta.needLogin && user.hasPulledUserInfo && !user.isLogin()) {
+    return {
+      name: 'user-account-login-pageindex',
+    }
+  }
+  return true
 })
 
 export default router

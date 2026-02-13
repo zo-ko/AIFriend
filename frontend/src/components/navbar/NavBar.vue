@@ -35,8 +35,8 @@ const user=useUserStore()
             <CreateIcon/>
             创作
           </router-link>
-          <router-link v-if="!user.isLogin()" :to="{name:'user-account-login-pageindex'}" class="btn btn-ghost text-lg">登录</router-link>
-          <UserMenu v-else class="dropdown-end"></UserMenu>
+          <router-link v-if="user.hasPulledUserInfo && !user.isLogin()" :to="{name:'user-account-login-pageindex'}" class="btn btn-ghost text-lg">登录</router-link>
+          <UserMenu v-else-if="user.isLogin()" class="dropdown-end"></UserMenu>
         </div>
       </nav>
       <slot></slot>
