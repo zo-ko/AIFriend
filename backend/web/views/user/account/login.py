@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from backend import settings
 from web.models.user import UserProfile
 
 
@@ -32,7 +32,7 @@ class LoginView(APIView):
                     value = str(refresh),
                     httponly = True,
                     samesite = 'Lax',
-                    secure = True,
+                    secure = not settings.DEBUG,
                     max_age = 86400*7,
                 )
                 return response
