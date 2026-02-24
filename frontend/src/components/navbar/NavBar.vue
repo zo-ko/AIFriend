@@ -31,9 +31,9 @@ const user=useUserStore()
           </div>
         </div>
         <div class="navbar-end">
-          <router-link v-if="user.isLogin()" :to="{name:'update-character',params:{character_id:1}}" active-class="btn-active" class="btn btn-ghost text-base mr-6">
+          <router-link v-if="user.isLogin()" :to="{name:'create-pageindex'}" active-class="btn-active" class="btn btn-ghost text-base mr-6">
             <CreateIcon/>
-            创作-更新
+            创作
           </router-link>
           <router-link v-if="user.hasPulledUserInfo && !user.isLogin()" :to="{name:'user-account-login-pageindex'}" class="btn btn-ghost text-lg">登录</router-link>
           <UserMenu v-else-if="user.isLogin()" class="dropdown-end"></UserMenu>
