@@ -1,11 +1,95 @@
 <script setup>
 import { useRoute } from 'vue-router'
+import UserInfoField from "@/views/user/space/components/UserInfoField.vue";
+import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef} from "vue";
+import api from "@/js/http/api.js";
 
 const route = useRoute()
+const userProfile=ref(null)
+const character=ref([])
+const isLoading=ref(false)
+const hasCharacters=ref(true)
+const sentinelRef = useTemplateRef('sentinel-ref')
+
+function checkSentinelVisible() {  // 判断哨兵是否能被看到
+  if (!sentinelRef.value) return false
+
+  const rect = sentinelRef.value.getBoundingClientRect()
+  return rect.top < window.innerHeight && rect.bottom > 0
+}
+
+async function loadMore(){
+  if(isLoading.value || !hasCharacters.value) return
+  isLoading.value = true
+
+  let newCharacters = []
+  try{
+    const res=await api.get('api/create/character/get_list/',{
+      params:{
+        items_counts:character.value.length,
+        user_id:route.params.user_id,
+      }
+    })
+    const data=res.data
+    if(data.result==='success'){
+      userProfile.value=data.user_profile
+      newCharacters=data.characters
+    }else{
+      console.log('错误')
+    }
+  }catch(err){
+    console.log(err)
+  }finally{
+    isLoading.value = false
+    if(newCharacters.length===0){
+      hasCharacters.value = false
+    }else{
+      character.value.push(...newCharacters)
+      await nextTick()
+
+      if(checkSentinelVisible()){
+        await loadMore()
+      }
+    }
+  }
+
+}
+
+let observer = null
+onMounted(async () => {
+  await loadMore()  // 加载新元素
+
+  observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+
+          loadMore()
+        }
+      })
+    },
+    {root: null, rootMargin: '2px', threshold: 0}
+  )
+
+  //监听哨兵元素， 每次哨兵被看到时，都会触发一次
+  observer.observe(sentinelRef.value)
+})
+
+onBeforeUnmount(() => {
+  observer?.disconnect()  // 解绑监听器
+})
 </script>
 
 <template>
-  个人空间: {{ route.params.user_id }}
+  <div class="flex flex-col items-center mb-12">
+    <UserInfoField :userProfile="userProfile"/>
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-9 mt-12 justify-items-center w-full px-9">
+
+    </div>
+    <div ref="sentinel-ref" class="h-2 mt-8 w-100 bg-red-500"></div>
+    <div v-if="isLoading" class="text-gray-500 mt-4">正在加载中</div>
+    <div v-else-if="!hasCharacters" class="text-gray-500 mt-4">已经到底啦</div>
+  </div>
 </template>
 
 <style scoped>
