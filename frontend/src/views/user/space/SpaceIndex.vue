@@ -3,10 +3,10 @@ import { useRoute } from 'vue-router'
 import UserInfoField from "@/views/user/space/components/UserInfoField.vue";
 import {nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef} from "vue";
 import api from "@/js/http/api.js";
-
+import Character from "@/components/character/Character.vue";
 const route = useRoute()
 const userProfile=ref(null)
-const character=ref([])
+const characters=ref([])
 const isLoading=ref(false)
 const hasCharacters=ref(true)
 const sentinelRef = useTemplateRef('sentinel-ref')
@@ -26,7 +26,7 @@ async function loadMore(){
   try{
     const res=await api.get('api/create/character/get_list/',{
       params:{
-        items_counts:character.value.length,
+        items_counts:characters.value.length,
         user_id:route.params.user_id,
       }
     })
@@ -44,7 +44,7 @@ async function loadMore(){
     if(newCharacters.length===0){
       hasCharacters.value = false
     }else{
-      character.value.push(...newCharacters)
+      characters.value.push(...newCharacters)
       await nextTick()
 
       if(checkSentinelVisible()){
@@ -54,6 +54,12 @@ async function loadMore(){
   }
 
 }
+
+function removeCharacter(characterId){
+  characters.value =characters.value.filter(c => c.id !== characterId)
+
+}
+
 
 let observer = null
 onMounted(async () => {
@@ -84,8 +90,15 @@ onBeforeUnmount(() => {
   <div class="flex flex-col items-center mb-12">
     <UserInfoField :userProfile="userProfile"/>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-9 mt-12 justify-items-center w-full px-9">
-
+      <Character
+          v-for="character in characters"
+          :key="character.id"
+          :character="character"
+          :canEdit="true"
+          @remove="removeCharacter"
+      />
     </div>
+    
     <div ref="sentinel-ref" class="h-2 mt-8 w-100 bg-red-500"></div>
     <div v-if="isLoading" class="text-gray-500 mt-4">正在加载中</div>
     <div v-else-if="!hasCharacters" class="text-gray-500 mt-4">已经到底啦</div>
