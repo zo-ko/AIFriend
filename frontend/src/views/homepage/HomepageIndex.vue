@@ -27,7 +27,7 @@ async function loadMore(){
   try{
     const res=await api.get('api/homepage/index/',{
       params:{
-        items_counts:characters.value.length,
+        items_count:characters.value.length,
         search_query:route.query.q || '',
       }
     })
@@ -70,7 +70,6 @@ onMounted(async () => {
     entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-
           loadMore()
         }
       })
