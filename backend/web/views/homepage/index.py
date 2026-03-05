@@ -10,7 +10,7 @@ class HomepageIndexView(APIView):
     permission_classes = [AllowAny]
     def get(self, request):
         try:
-            items_count = int(request.query_params.get('items_counts'))
+            items_count = int(request.query_params.get('items_count'))
             search_query = request.query_params.get('search_query', '').strip()
             if search_query:
                 queryset = Character.objects.filter(
