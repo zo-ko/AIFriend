@@ -77,6 +77,7 @@ class MessageChatView(APIView):
 
         response = StreamingHttpResponse(self.event_stream(app,inputs,friend,message), content_type="text/event-stream")
         response['Cache-Control'] = 'no-cache'
+        response['X-Accel-Buffering'] = 'no'
         return response
 
     async def tts_sender(self, app, inputs, mq, ws, task_id):
@@ -180,7 +181,7 @@ class MessageChatView(APIView):
             msg = mq.get()
             if not msg:
                 break
-            print(msg)
+
             if msg.get('content',None):
                 full_output += msg.get('content')
                 yield f'data: {json.dumps({'content': msg['content']}, ensure_ascii=False)}\n\n'
