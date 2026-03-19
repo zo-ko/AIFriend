@@ -13,7 +13,7 @@ let vadInstance = null;
 const startRecording = async () => {
   const baseUrl = "http://localhost:5173/vad/";
   try {
-    vadInstance = await MicVAD.new({
+    /*vadInstance = await MicVAD.new({
       baseAssetPath: baseUrl,
       onSpeechStart: () => {
         isSpeaking.value = true;
@@ -32,8 +32,32 @@ const startRecording = async () => {
       negativeSpeechThreshold: 0.65,
       minSpeechFrames: 5,
       redemptionFrames: 5,
+    });*/
+    vadInstance = await MicVAD.new({
+      baseAssetPath: baseUrl,
+      onSpeechStart: () => {
+        console.log('✅ onSpeechStart 触发 at', Date.now());
+        isSpeaking.value = true;
+        emit('stop');
+      },
+      onSpeechEnd: (audio) => {
+        console.log('🔥 onSpeechEnd 触发 at', Date.now(), '音频长度:', audio.length);
+        isSpeaking.value = false;
+        const pcm16 = float32ToInt16(audio);
+        sendToBackend(pcm16);
+      },
+      onVADMisfire: () => {  // 如果有这个回调（部分版本支持）
+        console.log('⚠️ VAD misfire 发生');
+      },
+      ortConfig: (ort) => {
+        ort.env.wasm.wasmPaths = baseUrl;
+        ort.env.logLevel = "error";
+      },
+      positiveSpeechThreshold: 0.7,   // 建议降低开始阈值
+      negativeSpeechThreshold: 0.4,   // 大幅降低结束阈值，让 VAD 更容易判定结束
+      minSpeechFrames: 8,             // 增加开始确认帧数，减少误触发
+      redemptionFrames: 8,
     });
-
     await vadInstance.start();
   } catch (e) {
     console.error("VAD 初始化失败:", e);
@@ -49,20 +73,42 @@ const float32ToInt16 = (float32Array) => {
   return buffer.buffer;
 };
 
-const sendToBackend = async (arrayBuffer) => {
-  const blob = new Blob(arrayBuffer, {type: "audio/pcm "})
-  const formData = new FormData()
-  formData.append("audio", blob,'voice.pcm')
+/*const sendToBackend = async (arrayBuffer) => {
+  const blob = new Blob([arrayBuffer], { type: "audio/pcm" });
+  const formData = new FormData();
+  formData.append("audio", blob, "voice.pcm");
 
-
-  try{
-    const res = await api.post('',formData)
-    const data = res.data
-    if(data.result === 'success'){
-      emit('send',null,data.text)
+  try {
+    const res = await api.post('/api/friend/message/asr/asr/', formData);
+    const data = res.data;
+    console.log(data);
+    if (data.result === 'success') {
+      emit('send', null, data.text);
     }
-  } catch(err){
-    console.error(err)
+  } catch (err) {
+    console.error(err);
+  }
+};*/
+
+const sendToBackend = async (arrayBuffer) => {
+  console.log('📤 sendToBackend 被调用，buffer 大小:', arrayBuffer.byteLength);
+  const blob = new Blob([arrayBuffer], { type: "audio/pcm" });
+  const formData = new FormData();
+  formData.append("audio", blob, "voice.pcm");
+
+  try {
+    console.log('准备发送 POST 请求到 /api/friend/message/asr/asr/');
+    const res = await api.post('/api/friend/message/asr/asr/', formData);
+    console.log('📥 收到响应:', res.data);
+    const data = res.data;
+    if (data.result === 'success') {
+      console.log('ASR 成功，文本:', data.text);
+      emit('send', null, data.text);
+    } else {
+      console.warn('ASR 返回非 success:', data);
+    }
+  } catch (err) {
+    console.error('❌ sendToBackend 错误:', err);
   }
 };
 
