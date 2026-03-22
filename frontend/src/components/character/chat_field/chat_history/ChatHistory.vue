@@ -3,7 +3,7 @@ import Message from "@/components/character/chat_field/chat_history/message/Mess
 import {nextTick, onBeforeUnmount, onMounted, useTemplateRef} from "vue";
 import api from "@/js/http/api.js";
 
-const props = defineProps(['history', 'friendId','character'])
+const props = defineProps(['history', 'friendId', 'character'])
 const emit = defineEmits(['pushFrontMessage'])
 const scrollRef = useTemplateRef('scroll-ref')
 const sentinelRef = useTemplateRef('sentinel-ref')
@@ -19,43 +19,42 @@ function checkSentinelVisible() {  // 判断哨兵是否能被看到
   return sentinelRect.top < scrollRect.bottom && sentinelRect.bottom > scrollRect.top
 }
 
-
-async function loadMore(){
-  if(isLoading || !hasMessages) return
+async function loadMore() {
+  if (isLoading || !hasMessages) return
   isLoading = true
 
-  let newMessages=[]
-  try{
-    const res = await api.get('/api/friend/message/get_history/',{
-      params:{
-        last_message_id:lastMessageId,
-        friend_id:props.friendId,
+  let newMessages = []
+  try {
+    const res = await api.get('/api/friend/message/get_history/', {
+      params: {
+        last_message_id: lastMessageId,
+        friend_id: props.friendId,
       }
     })
     const data = res.data
-    if(data.result === 'success'){
+    if (data.result === 'success') {
       newMessages = data.messages
     }
-  }catch(error){
-    console.log(error)
-  }finally {
+  } catch (err) {
+  } finally {
     isLoading = false
 
-    if(newMessages.length === 0){
+    if (newMessages.length === 0) {
       hasMessages = false
-    } else{
+    } else {
       const oldHeight = scrollRef.value.scrollHeight
       const oldTop = scrollRef.value.scrollTop
-      for (const m of newMessages){
-        emit('pushFrontMessage',{
-          role : 'ai',
-          content : m.output,
-          id : crypto.randomUUID(),
+
+      for (const m of newMessages) {
+        emit('pushFrontMessage', {
+          role: 'ai',
+          content: m.output,
+          id: crypto.randomUUID(),
         })
-        emit('pushFrontMessage',{
-          role : 'user',
-          content : m.user_message,
-          id : crypto.randomUUID(),
+        emit('pushFrontMessage', {
+          role: 'user',
+          content: m.user_message,
+          id: crypto.randomUUID(),
         })
         lastMessageId = m.id
       }
@@ -65,12 +64,11 @@ async function loadMore(){
       const newHeight = scrollRef.value.scrollHeight
       scrollRef.value.scrollTop = oldTop + newHeight - oldHeight
 
-      if(checkSentinelVisible()){
+      if (checkSentinelVisible()) {
         await loadMore()
       }
     }
   }
-
 }
 
 let observer = null
@@ -78,14 +76,14 @@ onMounted(async () => {
   await loadMore()
 
   observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if(entry.isIntersecting){
-            loadMore()
-          }
-        })
-      },
-      {root: null, rootMargin: '2px', threshold: 1},
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          loadMore()
+        }
+      })
+    },
+    {root: null, rootMargin: '2px', threshold: 0}
   )
 
   observer.observe(sentinelRef.value)
@@ -95,13 +93,11 @@ onBeforeUnmount(() => {
   observer?.disconnect()
 })
 
-async function scrollToBottom(){
-  await nextTick();
+async function scrollToBottom() {
+  await nextTick()
 
-  scrollRef.value.scrollTop = scrollRef.value.scrollHeight;
+  scrollRef.value.scrollTop = scrollRef.value.scrollHeight
 }
-
-
 
 defineExpose({
   scrollToBottom
@@ -109,8 +105,8 @@ defineExpose({
 </script>
 
 <template>
-  <div ref="scroll-ref" class="absolute top-18 left-0 h-122 overflow-y-scroll no-scrollbar">
-    <div ref="sentinel-ref" class="h-2 bg-red-500"></div>
+  <div ref="scroll-ref" class="absolute top-18 left-0 w-90 h-112 overflow-y-scroll no-scrollbar">
+    <div ref="sentinel-ref" class="h-2"></div>
     <Message
         v-for="message in history"
         :key="message.id"
@@ -118,7 +114,6 @@ defineExpose({
         :character="character"
     />
   </div>
-
 </template>
 
 <style scoped>
